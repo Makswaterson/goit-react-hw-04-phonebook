@@ -5,6 +5,10 @@ import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
 import { AppStyled } from './App.styled';
 
+import { useContext } from 'react';
+import { AuthNow } from './AuthNow';
+import { AuthContext } from '../context/auth-context';
+
 const getInitialContacts = () => {
   const savedContacts = localStorage.getItem('contacts');
   if (savedContacts !== null) {
@@ -21,6 +25,8 @@ export const App = () => {
   useEffect(() => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
   }, [contacts]);
+
+  const { isAuth } = useContext(AuthContext);
 
   const onHandleSubmit = (data, { resetForm }) => {
     const contact = {
@@ -53,7 +59,25 @@ export const App = () => {
 
   return (
     <AppStyled>
-      <h1>Phonebook</h1>
+      <AuthNow />
+      {!isAuth ? (
+        <p>LogIn please (Enter 'Admin')</p>
+      ) : (
+        <>
+          {' '}
+          <h1>Phonebook</h1>
+          <ContactForm onSubmit={onHandleSubmit} />
+          <h2>Contacts</h2>
+          <Filter value={filter} onChange={onHandleFilter} />
+          {contacts.length > 0 && (
+            <ContactList
+              contacts={getVisibleContacts()}
+              onDelete={onDeleteContacts}
+            />
+          )}
+        </>
+      )}
+      {/* <h1>Phonebook</h1>
       <ContactForm onSubmit={onHandleSubmit} />
       <h2>Contacts</h2>
       <Filter value={filter} onChange={onHandleFilter} />
@@ -62,7 +86,7 @@ export const App = () => {
           contacts={getVisibleContacts()}
           onDelete={onDeleteContacts}
         />
-      )}
+      )} */}
     </AppStyled>
   );
 };
